@@ -13,6 +13,7 @@ pub fn build(b: *std.Build) void {
 
     // add source files
     exe.addCSourceFile(.{ .file = b.path("src/main.c") });
+    exe.addCSourceFile(.{ .file = b.path("src/reminders.c") });
 
     // add include paths
     exe.addIncludePath(b.path("src"));
