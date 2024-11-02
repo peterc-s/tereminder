@@ -8,6 +8,8 @@ BUILDDIR = build
 SRC = $(wildcard $(SRCDIR)/*.c)
 OBJ = $(SRC:$(SRCDIR)/%.c=$(BUILDDIR)/%.o)
 
+INSTALL_DIR = /usr/sbin
+
 NAME = tereminder
 
 all : $(NAME)
@@ -25,5 +27,11 @@ run : $(NAME)
 clean:
 	-rm -r $(BUILDDIR)
 	-rm $(NAME)
+
+install : $(NAME)
+	sudo cp $(NAME) $(INSTALL_DIR)/$(NAME)
+
+uninstall :
+	sudo rm $(INSTALL_DIR)/$(NAME)
 
 .PHONY: all clean run
