@@ -225,8 +225,8 @@ reminder_arr_t parse_file(char* file_contents) {
         ////
         // parse description
 
-        // skip to next space
-        for(; *file_contents != ' '; ++file_contents);
+        // skip to after the title
+        for(; *file_contents != ':'; ++file_contents);
         ++file_contents;
 
         // get length of description
