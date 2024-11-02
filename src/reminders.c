@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include "reminders.h"
 #include "ansi.h"
@@ -246,7 +247,11 @@ reminder_arr_t parse_file(char* file_contents) {
         file_contents -= title_len;
 
         // get title
-        char* title = (char*)malloc(title_len * sizeof(char));
+        char* title = (char*)malloc((title_len + 1) * sizeof(char));
+        if (!title && errno != 0) {
+            perror("ERROR:");
+            exit(errno);
+        }
         memcpy(title, file_contents, title_len);
         title[title_len] = '\0';
 
@@ -263,7 +268,11 @@ reminder_arr_t parse_file(char* file_contents) {
         file_contents -= desc_len;
 
         // get description
-        char* desc = (char*)malloc(desc_len * sizeof(char));
+        char* desc = (char*)malloc((desc_len + 1) * sizeof(char));
+        if(!desc && errno != 0) {
+            perror("ERROR:");
+            exit(errno);
+        }
         memcpy(desc, file_contents, desc_len);
         desc[desc_len] = '\0';
 
