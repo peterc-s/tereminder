@@ -1,4 +1,5 @@
 #include <time.h>
+#include <stdlib.h>
 #include <stdio.h>
 
 #include "reminders.h"
@@ -24,6 +25,8 @@ int main(void) {
     char* reminder_file = read_file("reminders.trdr");
 
     reminder_arr_t reminders = parse_file(reminder_file);
+
+    free(reminder_file);
 
     for (size_t i = 0; i < reminders.size; ++i) {
         print_reminder(&reminders.arr[i]);
