@@ -10,7 +10,7 @@ typedef struct tm_diff {
     int hours;
     int mins;
     int secs;
-    int sign;
+    int negative;
 } tm_diff_t;
 
 tm_diff_t time_diff(struct tm time1, struct tm time2);

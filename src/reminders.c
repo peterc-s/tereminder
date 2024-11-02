@@ -29,10 +29,10 @@ int print_reminder(reminder_t* rem) {
         ) {
         printf(ANSI_UNDERLINE ANSI_BOLD ANSI_COLOR_YELLOW "Due now");
     } else {
-        if (due_diff.sign > 0) {
-            printf(ANSI_UNDERLINE ANSI_BOLD ANSI_COLOR_MAGENTA "Due in ");
-        } else {
+        if (due_diff.negative) {
             printf(ANSI_UNDERLINE ANSI_BOLD ANSI_COLOR_RED "Overdue by ");
+        } else {
+            printf(ANSI_UNDERLINE ANSI_BOLD ANSI_COLOR_MAGENTA "Due in ");
         }
 
         if (due_diff.years != 0) {
@@ -41,30 +41,35 @@ int print_reminder(reminder_t* rem) {
             if (due_diff.months != 0) {
                 printf(", %d months", abs(due_diff.months));
             }
+
         } else if (due_diff.months != 0) {
             printf("%d months", abs(due_diff.months));
 
             if (due_diff.days != 0) {
                 printf(", %d days", abs(due_diff.days));
             }
+
         } else if (due_diff.days != 0) {
             printf("%d days", abs(due_diff.days));
 
             if (due_diff.hours != 0) {
-                printf(", %d hours", abs(due_diff.hours));
+              printf(", %d hours", abs(due_diff.hours));
             }
+
         } else if (due_diff.hours != 0) {
             printf("%d hours", abs(due_diff.hours));
 
             if (due_diff.mins != 0) {
                 printf(", %d minutes", abs(due_diff.mins));
             }
+
         } else if (due_diff.mins != 0) {
             printf("%d minutes", abs(due_diff.mins));
 
             if (due_diff.secs != 0) {
                 printf(", %d seconds", abs(due_diff.secs));
             }
+
         } else if (due_diff.secs != 0) {
             printf("%d seconds", abs(due_diff.secs));
         }
@@ -125,8 +130,8 @@ reminder_arr_t parse_file(char* file_contents) {
         memcpy(month_str, file_contents, 2);
         month_str[2] = '\0';
         month = atoi(month_str) - 1;
-        if (month == 0 || month > 11) {
-            fprintf(stderr, "ERROR: Malformed date in reminder, got month of %d (should be 1-12).\n", month);
+        if (month > 12) {
+            fprintf(stderr, "ERROR: Malformed date in reminder, got month of %d (should be 1-12).\n", month + 1);
             exit(EXIT_FAILURE);
         }
         file_contents += 3;
@@ -135,8 +140,8 @@ reminder_arr_t parse_file(char* file_contents) {
         memcpy(day_str, file_contents, 2);
         day_str[2] = '\0';
         day = atoi(day_str);
-        if (day == 0 || day > MONTH_LEN_LOOKUP[(month%12)-1]) {
-            fprintf(stderr, "ERROR: Malformed date in reminder, got day of %d with month %d (should be 1-%d).\n", day, month, MONTH_LEN_LOOKUP[(month%12)-1]);
+        if (day == 0 || day > days_in_month(year, month)) {
+            fprintf(stderr, "ERROR: Malformed date in reminder, got day of %d with month %d (should be 1-%d).\n", day, month, days_in_month(year,  month));
             exit(EXIT_FAILURE);
         }
         file_contents += 3;
