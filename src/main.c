@@ -23,11 +23,7 @@ int main(void) {
 
     char* reminder_file = read_file("reminders.trdr");
 
-    printf("%s", reminder_file);
-
     reminder_arr_t reminders = parse_file(reminder_file);
-
-    printf("Num: %lu\n", reminders.size);
 
     for (size_t i = 0; i < reminders.size; ++i) {
         print_reminder(&reminders.arr[i]);

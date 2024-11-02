@@ -34,16 +34,16 @@ int print_reminder(reminder_t* rem) {
 
     switch (rem->severity) {
         case Routine:
-            printf("R  ");
+            printf("R ");
             break;
         case Low:
-            printf("0  ");
+            printf("L ");
             break;
         case Medium:
-            printf("!  ");
+            printf("M ");
             break;
         case High:
-            printf("!! ");
+            printf("H ");
             break;
     }
 
@@ -62,43 +62,130 @@ reminder_arr_t parse_file(char* file_contents) {
     size_t reminder_i = 0;
 
     reminder_t* reminders = (reminder_t*)malloc(reminder_count * sizeof(reminder_t));
-    uint16_t year;
+    char year_str[5], month_str[3], day_str[3], hour_str[3], min_str[3], sec_str[3];
+    int16_t year;
     uint8_t month, day, hour, min, sec;
 
     while (file_contents != file_end) {
+        ////
+        // parse due date
         // YYYY-MM-DDTHH:MM:SS
         
-        year = atoi(file_contents);
+        // year
+        memcpy(year_str, file_contents, 4);
+        year_str[4] = '\0';
+        // tm_year is time since 1900
+        year = atoi(year_str) - 1900;
         file_contents += 5;
-        month = atoi(file_contents);
+
+        // month
+        memcpy(month_str, file_contents, 2);
+        month_str[2] = '\0';
+        month = atoi(month_str);
         if (month == 0 || month > 12) {
             fprintf(stderr, "ERROR: Malformed date in reminder, got month of %d (should be 1-12).\n", month);
             exit(EXIT_FAILURE);
         }
         file_contents += 3;
-        day = atoi(file_contents);
+
+        // day
+        memcpy(day_str, file_contents, 2);
+        day_str[2] = '\0';
+        day = atoi(day_str);
         if (day == 0 || day > month_length_lut[(month%12)-1]) {
             fprintf(stderr, "ERROR: Malformed date in reminder, got day of %d with month %d (should be 1-%d).\n", day, month, month_length_lut[(month%12)-1]);
             exit(EXIT_FAILURE);
         }
         file_contents += 3;
-        hour = atoi(file_contents);
+
+        // hour
+        memcpy(hour_str, file_contents, 2);
+        hour_str[2] = '\0';
+        hour = atoi(hour_str);
         if (hour > 23) {
             fprintf(stderr, "ERROR: Malformed date in reminder, got hour of %d (should be 0-23).\n", hour);
             exit(EXIT_FAILURE);
         }
         file_contents += 3;
-        min = atoi(file_contents);
+
+        // minute
+        memcpy(min_str, file_contents, 2);
+        min_str[2] = '\0';
+        min = atoi(min_str);
         if (min > 59) {
             fprintf(stderr, "ERROR: Malformed date in reminder, got minute of %d (should be 0-59).\n", min);
             exit(EXIT_FAILURE);
         }
         file_contents += 3;
-        sec = atoi(file_contents);
+
+        // second
+        memcpy(sec_str, file_contents, 2);
+        sec_str[2] = '\0';
+        sec = atoi(sec_str);
         if (sec > 59) {
             fprintf(stderr, "ERROR: Malformed date in reminder, got second of %d (should be 0-60).\n", sec);
             exit(EXIT_FAILURE);
         }
+
+        ////
+        // parse severity
+        
+        Severity temp_sev;
+
+        // skip to next space
+        for(; *file_contents != ' '; ++file_contents);
+        switch (*(++file_contents)) {
+            case 'R':
+                temp_sev = Routine;
+                break;
+            case 'L':
+                temp_sev = Low;
+                break;
+            case 'M':
+                temp_sev = Medium;
+                break;
+            case 'H':
+                temp_sev = High;
+                break;
+            default:
+                //TODO: error handling
+                temp_sev = Routine;
+                break;
+        }
+
+        ////
+        // parse title
+        
+        // skip to next space
+        for(; *file_contents != ' '; ++file_contents);
+        ++file_contents;
+
+        // get length of title
+        size_t title_len = 0;
+        for (; *file_contents != ':'; ++file_contents, ++title_len);
+        file_contents -= title_len;
+
+        // get title
+        char* title = (char*)malloc(title_len * sizeof(char));
+        memcpy(title, file_contents, title_len);
+        title[title_len] = '\0';
+
+        ////
+        // parse description
+
+        // skip to next space
+        for(; *file_contents != ' '; ++file_contents);
+        ++file_contents;
+
+        // get length of description
+        size_t desc_len = 0;
+        for (; *file_contents != '\n' && *file_contents != '\0'; ++file_contents, ++desc_len);
+        file_contents -= desc_len;
+
+        // get description
+        char* desc = (char*)malloc(desc_len * sizeof(char));
+        memcpy(desc, file_contents, desc_len);
+        desc[desc_len] = '\0';
 
         struct tm temp_due = {
             .tm_year = year,
@@ -111,17 +198,16 @@ reminder_arr_t parse_file(char* file_contents) {
 
         reminder_t temp_reminder = {
             .due = temp_due,
-            .severity = High,
-            .title = "TEST",
-            .description = "TEST!",
+            .severity = temp_sev,
+            .title = title,
+            .description = desc,
         };
 
-        //debug
-        print_reminder(&temp_reminder);
-
+        // add to reminders
         reminders[reminder_i] = temp_reminder;
         ++reminder_i;
 
+        // skip to next line
         while(*file_contents != '\n') ++file_contents;
         ++file_contents;
     }
