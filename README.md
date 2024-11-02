@@ -31,7 +31,7 @@ make clean
 Currently, you will need to manually edit your `.reminders` file
 and there is no way to set where your `reminders` file is other
 than modifying the source code and rebuilding (there are plans
-to change this).
+to change this). It will currently default to `$HOME/.reminders`.
 
 The format of a reminder is as follows:
 ```
