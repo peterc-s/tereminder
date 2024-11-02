@@ -5,26 +5,10 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#include "timeutil.h"
 #include "reminders.h"
 #include "ansi.h"
 #include "timediff.h"
-
-//TODO: leap years
-static uint8_t month_length_lut[12] =
-{
-    31, // Jan
-    29, // Feb
-    31, // Mar
-    30, // Apr
-    31, // May
-    30, // Jun
-    31, // Jul
-    31, // Aug
-    30, // Sep
-    31, // Oct
-    30, // Nov
-    31, // Dec
-};
 
 int print_reminder(reminder_t* rem) {
     // get current time
@@ -37,7 +21,7 @@ int print_reminder(reminder_t* rem) {
     // represent the difference
     printf(ANSI_UNDERLINE ANSI_BOLD ANSI_COLOR_MAGENTA);
     if (due_diff.years != 0) {
-        if (due_diff.years > 0) {
+        if (due_diff.sign > 0) {
             printf("Due in ");
         } else {
             printf("Overdue by ");
@@ -49,7 +33,7 @@ int print_reminder(reminder_t* rem) {
             printf(", %d months", abs(due_diff.months));
         }
     } else if (due_diff.months != 0) {
-        if (due_diff.months > 0) {
+        if (due_diff.sign > 0) {
             printf("Due in ");
         } else {
             printf("Overdue by ");
@@ -61,7 +45,7 @@ int print_reminder(reminder_t* rem) {
             printf(", %d days", abs(due_diff.days));
         }
     } else if (due_diff.days != 0) {
-        if (due_diff.days > 0) {
+        if (due_diff.sign > 0) {
             printf("Due in ");
         } else {
             printf("Overdue by ");
@@ -73,7 +57,7 @@ int print_reminder(reminder_t* rem) {
             printf(", %d hours", abs(due_diff.hours));
         }
     } else if (due_diff.hours != 0) {
-        if (due_diff.hours > 0) {
+        if (due_diff.sign > 0) {
             printf("Due in ");
         } else {
             printf("Overdue by ");
@@ -85,7 +69,7 @@ int print_reminder(reminder_t* rem) {
             printf(", %d minutes", abs(due_diff.mins));
         }
     } else if (due_diff.mins != 0) {
-        if (due_diff.mins > 0) {
+        if (due_diff.sign > 0) {
             printf("Due in ");
         } else {
             printf("Overdue by ");
@@ -97,7 +81,7 @@ int print_reminder(reminder_t* rem) {
             printf(", %d seconds", abs(due_diff.secs));
         }
     } else if (due_diff.secs != 0) {
-        if (due_diff.secs > 0) {
+        if (due_diff.sign > 0) {
             printf("Due in ");
         } else {
             printf("Overdue by ");
@@ -173,8 +157,8 @@ reminder_arr_t parse_file(char* file_contents) {
         memcpy(day_str, file_contents, 2);
         day_str[2] = '\0';
         day = atoi(day_str);
-        if (day == 0 || day > month_length_lut[(month%12)-1]) {
-            fprintf(stderr, "ERROR: Malformed date in reminder, got day of %d with month %d (should be 1-%d).\n", day, month, month_length_lut[(month%12)-1]);
+        if (day == 0 || day > MONTH_LEN_LOOKUP[(month%12)-1]) {
+            fprintf(stderr, "ERROR: Malformed date in reminder, got day of %d with month %d (should be 1-%d).\n", day, month, MONTH_LEN_LOOKUP[(month%12)-1]);
             exit(EXIT_FAILURE);
         }
         file_contents += 3;
