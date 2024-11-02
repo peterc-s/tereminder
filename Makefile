@@ -34,4 +34,4 @@ install : $(NAME)
 uninstall :
 	sudo rm $(INSTALL_DIR)/$(NAME)
 
-.PHONY: all clean run
+.PHONY: all clean run install uninstall
