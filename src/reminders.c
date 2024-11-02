@@ -36,42 +36,42 @@ int print_reminder(reminder_t* rem) {
         }
 
         if (due_diff.years != 0) {
-            printf("%d years", abs(due_diff.years));
+            printf("%d year%s", abs(due_diff.years), (due_diff.years > 1) ? "s" : "");
 
             if (due_diff.months != 0) {
-                printf(", %d months", abs(due_diff.months));
+                printf(", %d month%s", abs(due_diff.months), (due_diff.months > 1) ? "s" : "");
             }
 
         } else if (due_diff.months != 0) {
-            printf("%d months", abs(due_diff.months));
+            printf("%d month%s", abs(due_diff.months), (due_diff.months > 1) ? "s" : "");
 
             if (due_diff.days != 0) {
-                printf(", %d days", abs(due_diff.days));
+                printf(", %d day%s", abs(due_diff.days), (due_diff.days > 1) ? "s" : "");
             }
 
         } else if (due_diff.days != 0) {
-            printf("%d days", abs(due_diff.days));
+            printf("%d day%s", abs(due_diff.days), (due_diff.days > 1) ? "s" : "");
 
             if (due_diff.hours != 0) {
-              printf(", %d hours", abs(due_diff.hours));
+              printf(", %d hour%s", abs(due_diff.hours), (due_diff.hours > 1) ? "s" : "");
             }
 
         } else if (due_diff.hours != 0) {
-            printf("%d hours", abs(due_diff.hours));
+            printf("%d hour%s", abs(due_diff.hours), (due_diff.hours > 1) ? "s" : "");
 
             if (due_diff.mins != 0) {
-                printf(", %d minutes", abs(due_diff.mins));
+                printf(", %d minute%s", abs(due_diff.mins), (due_diff.mins > 1) ? "s" : "");
             }
 
         } else if (due_diff.mins != 0) {
-            printf("%d minutes", abs(due_diff.mins));
+            printf("%d minute%s", abs(due_diff.mins), (due_diff.mins > 1) ? "s" : "");
 
             if (due_diff.secs != 0) {
-                printf(", %d seconds", abs(due_diff.secs));
+                printf(", %d second%s", abs(due_diff.secs), (due_diff.secs > 1) ? "s" : "");
             }
 
         } else if (due_diff.secs != 0) {
-            printf("%d seconds", abs(due_diff.secs));
+            printf("%d second%s", abs(due_diff.secs), (due_diff.secs > 1) ? "s" : "");
         }
     }
 
