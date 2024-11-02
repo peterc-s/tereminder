@@ -5,23 +5,31 @@
 #include "file.h"
 
 int main(void) {
-    struct tm test_time = {
-        .tm_year = 124,
-        .tm_mon  = 10,
-        .tm_mday = 25,
-        .tm_hour = 22,
-    };
-
-    reminder_t reminder = {
-        .due = test_time,
-        .severity = High,
-        .title = "Hello",
-        .description = "World"
-    };
-
-    print_reminder(&reminder);
+    // struct tm test_time = {
+    //     .tm_year = 124,
+    //     .tm_mon  = 10,
+    //     .tm_mday = 25,
+    //     .tm_hour = 22,
+    // };
+    //
+    // reminder_t reminder = {
+    //     .due = test_time,
+    //     .severity = High,
+    //     .title = "Hello",
+    //     .description = "World"
+    // };
+    //
+    // print_reminder(&reminder);
 
     char* reminder_file = read_file("reminders.trdr");
 
     printf("%s", reminder_file);
+
+    reminder_arr_t reminders = parse_file(reminder_file);
+
+    printf("Num: %lu\n", reminders.size);
+
+    for (size_t i = 0; i < reminders.size; ++i) {
+        print_reminder(&reminders.arr[i]);
+    }
 }

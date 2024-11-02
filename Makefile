@@ -1,5 +1,6 @@
 CC = gcc
 CFLAGS ?= -Wall -Wextra -pedantic -O2
+CFLAGS += $(CFLAGS_EX)
 
 SRCDIR = src
 BUILDDIR = build

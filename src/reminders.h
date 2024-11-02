@@ -20,6 +20,12 @@ typedef struct reminder {
     char* description;
 } reminder_t;
 
+typedef struct reminder_arr {
+    reminder_t* arr;
+    size_t size;
+} reminder_arr_t;
+
 int print_reminder(reminder_t* rem);
+reminder_arr_t parse_file(char* file_contents);
 
 #endif
