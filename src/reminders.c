@@ -19,77 +19,55 @@ int print_reminder(reminder_t* rem) {
     tm_diff_t due_diff = time_diff(rem->due, current_time);
 
     // represent the difference
-    printf(ANSI_UNDERLINE ANSI_BOLD ANSI_COLOR_MAGENTA);
-    if (due_diff.years != 0) {
-        if (due_diff.sign > 0) {
-            printf("Due in ");
-        } else {
-            printf("Overdue by ");
-        }
-
-        printf("%d years", abs(due_diff.years));
-
-        if (due_diff.months != 0) {
-            printf(", %d months", abs(due_diff.months));
-        }
-    } else if (due_diff.months != 0) {
-        if (due_diff.sign > 0) {
-            printf("Due in ");
-        } else {
-            printf("Overdue by ");
-        }
-
-        printf("%d months", abs(due_diff.months));
-
-        if (due_diff.days != 0) {
-            printf(", %d days", abs(due_diff.days));
-        }
-    } else if (due_diff.days != 0) {
-        if (due_diff.sign > 0) {
-            printf("Due in ");
-        } else {
-            printf("Overdue by ");
-        }
-
-        printf("%d days", abs(due_diff.days));
-
-        if (due_diff.hours != 0) {
-            printf(", %d hours", abs(due_diff.hours));
-        }
-    } else if (due_diff.hours != 0) {
-        if (due_diff.sign > 0) {
-            printf("Due in ");
-        } else {
-            printf("Overdue by ");
-        }
-
-        printf("%d hours", abs(due_diff.hours));
-
-        if (due_diff.mins != 0) {
-            printf(", %d minutes", abs(due_diff.mins));
-        }
-    } else if (due_diff.mins != 0) {
-        if (due_diff.sign > 0) {
-            printf("Due in ");
-        } else {
-            printf("Overdue by ");
-        }
-
-        printf("%d minutes", abs(due_diff.mins));
-
-        if (due_diff.secs != 0) {
-            printf(", %d seconds", abs(due_diff.secs));
-        }
-    } else if (due_diff.secs != 0) {
-        if (due_diff.sign > 0) {
-            printf("Due in ");
-        } else {
-            printf("Overdue by ");
-        }
-
-        printf("%d seconds", abs(due_diff.secs));
+    if (
+            due_diff.years == 0 &&
+            due_diff.months == 0 &&
+            due_diff.days == 0 &&
+            due_diff.hours == 0 &&
+            due_diff.mins == 0 &&
+            due_diff.secs == 0
+        ) {
+        printf(ANSI_UNDERLINE ANSI_BOLD ANSI_COLOR_YELLOW "Due now");
     } else {
-        printf("Due now");
+        if (due_diff.sign > 0) {
+            printf(ANSI_UNDERLINE ANSI_BOLD ANSI_COLOR_MAGENTA "Due in ");
+        } else {
+            printf(ANSI_UNDERLINE ANSI_BOLD ANSI_COLOR_RED "Overdue by ");
+        }
+
+        if (due_diff.years != 0) {
+            printf("%d years", abs(due_diff.years));
+
+            if (due_diff.months != 0) {
+                printf(", %d months", abs(due_diff.months));
+            }
+        } else if (due_diff.months != 0) {
+            printf("%d months", abs(due_diff.months));
+
+            if (due_diff.days != 0) {
+                printf(", %d days", abs(due_diff.days));
+            }
+        } else if (due_diff.days != 0) {
+            printf("%d days", abs(due_diff.days));
+
+            if (due_diff.hours != 0) {
+                printf(", %d hours", abs(due_diff.hours));
+            }
+        } else if (due_diff.hours != 0) {
+            printf("%d hours", abs(due_diff.hours));
+
+            if (due_diff.mins != 0) {
+                printf(", %d minutes", abs(due_diff.mins));
+            }
+        } else if (due_diff.mins != 0) {
+            printf("%d minutes", abs(due_diff.mins));
+
+            if (due_diff.secs != 0) {
+                printf(", %d seconds", abs(due_diff.secs));
+            }
+        } else if (due_diff.secs != 0) {
+            printf("%d seconds", abs(due_diff.secs));
+        }
     }
 
     printf(ANSI_RESET " ");
