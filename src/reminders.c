@@ -5,6 +5,8 @@
 #include <stdlib.h>
 
 #include "reminders.h"
+#include "ansi.h"
+#include "timediff.h"
 
 //TODO: leap years
 static uint8_t month_length_lut[12] =
@@ -24,30 +26,108 @@ static uint8_t month_length_lut[12] =
 };
 
 int print_reminder(reminder_t* rem) {
-    char buf[70];
+    // get current time
+    time_t current_time_epoch = time(NULL);
+    struct tm current_time = *localtime(&current_time_epoch);
 
-    if(!strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S", &rem->due)) {
-        return FORMAT_TIME_FAIL;
+    // get difference
+    tm_diff_t due_diff = time_diff(rem->due, current_time);
+
+    // represent the difference
+    printf(ANSI_UNDERLINE ANSI_BOLD ANSI_COLOR_MAGENTA);
+    if (due_diff.years != 0) {
+        if (due_diff.years > 0) {
+            printf("Due in ");
+        } else {
+            printf("Overdue by ");
+        }
+
+        printf("%d years", abs(due_diff.years));
+
+        if (due_diff.months != 0) {
+            printf(", %d months", abs(due_diff.months));
+        }
+    } else if (due_diff.months != 0) {
+        if (due_diff.months > 0) {
+            printf("Due in ");
+        } else {
+            printf("Overdue by ");
+        }
+
+        printf("%d months", abs(due_diff.months));
+
+        if (due_diff.days != 0) {
+            printf(", %d days", abs(due_diff.days));
+        }
+    } else if (due_diff.days != 0) {
+        if (due_diff.days > 0) {
+            printf("Due in ");
+        } else {
+            printf("Overdue by ");
+        }
+
+        printf("%d days", abs(due_diff.days));
+
+        if (due_diff.hours != 0) {
+            printf(", %d hours", abs(due_diff.hours));
+        }
+    } else if (due_diff.hours != 0) {
+        if (due_diff.hours > 0) {
+            printf("Due in ");
+        } else {
+            printf("Overdue by ");
+        }
+
+        printf("%d hours", abs(due_diff.hours));
+
+        if (due_diff.mins != 0) {
+            printf(", %d minutes", abs(due_diff.mins));
+        }
+    } else if (due_diff.mins != 0) {
+        if (due_diff.mins > 0) {
+            printf("Due in ");
+        } else {
+            printf("Overdue by ");
+        }
+
+        printf("%d minutes", abs(due_diff.mins));
+
+        if (due_diff.secs != 0) {
+            printf(", %d seconds", abs(due_diff.secs));
+        }
+    } else if (due_diff.secs != 0) {
+        if (due_diff.secs > 0) {
+            printf("Due in ");
+        } else {
+            printf("Overdue by ");
+        }
+
+        printf("%d seconds", abs(due_diff.secs));
+    } else {
+        printf("Due now");
     }
 
-    printf("%s ", buf);
+    printf(ANSI_RESET " ");
 
+    // print severity
     switch (rem->severity) {
         case Routine:
-            printf("R ");
+            printf(ANSI_BOLD ANSI_COLOR_BLUE "R ");
             break;
         case Low:
-            printf("L ");
+            printf(ANSI_BOLD ANSI_COLOR_GREEN "L ");
             break;
         case Medium:
-            printf("M ");
+            printf(ANSI_BOLD ANSI_COLOR_YELLOW "M ");
             break;
         case High:
-            printf("H ");
+            printf(ANSI_BOLD ANSI_COLOR_RED "H ");
             break;
     }
 
-    printf("%s: %s\n", rem->title, rem->description);
+    // print title and description
+    printf(ANSI_BOLD "%s:" ANSI_RESET, rem->title);
+    printf(ANSI_ITALIC " %s\n" ANSI_RESET, rem->description);
 
     return PRINT_OK;
 }
@@ -81,8 +161,8 @@ reminder_arr_t parse_file(char* file_contents) {
         // month
         memcpy(month_str, file_contents, 2);
         month_str[2] = '\0';
-        month = atoi(month_str);
-        if (month == 0 || month > 12) {
+        month = atoi(month_str) - 1;
+        if (month == 0 || month > 11) {
             fprintf(stderr, "ERROR: Malformed date in reminder, got month of %d (should be 1-12).\n", month);
             exit(EXIT_FAILURE);
         }
