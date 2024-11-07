@@ -35,19 +35,26 @@ to change this). It will currently default to `$HOME/.reminders`.
 
 The format of a reminder is as follows:
 ```
-YYYY-MM-DDTHH:MM:SS <R|L|M|H> <title>:<description>
-|_________________| |_______|        |
-|                   |                |_splits the title
-|_date              |_severity         from the description
-|_24 hour format    |_R: routine       on the first colon
+<> - required
+[] - optional
+|  - exclusive or
+
+YYYY-MM-DDTHH:MM:SS <R|L|M|H> [[title]:[description]]
+|_________________| |_______|         |
+|                   |                 |_splits the title
+|_date              |_severity          from the description
+|_24 hour format    |_R: routine        on the first colon
                     |_L: low
                     |_M: medium
                     |_H: high
 ```
 
-As an example:
+Examples:
 ```
 2024-11-02T16:00:00 M Collect parcel: From the post office on Example St.
+2024-11-07T21:00:00 L Celebrate!
+2024-11-08T10:00:00 R : House work.
+2024-12-01T12:30:00 L
 ```
 
 You can then use:
@@ -75,4 +82,3 @@ and could introduce bugs.
 - CLI or TUI for creating, updating, and deleting reminders
 - Packaging for AUR and other distro repositories
 - Potential optimisations
-- More options for reminders (i.e. todo lists, no description, no title)

@@ -94,15 +94,24 @@ int print_reminder(reminder_t* rem) {
     }
 
     // print title and description
-    printf(ANSI_BOLD "%s:" ANSI_RESET, rem->title);
-    printf(ANSI_ITALIC " %s\n" ANSI_RESET, rem->description);
+    
+    if (rem->title != NULL) {
+        printf(ANSI_BOLD "%s", rem->title);
+        if(rem->description != NULL) {
+            printf(": " ANSI_RESET);
+        }
+    }
+
+    if (rem->description) {
+        printf(ANSI_RESET ANSI_ITALIC "%s" ANSI_RESET, rem->description);
+    }
+
+    printf(ANSI_RESET "\n");
 
     return PRINT_OK;
 }
 
 reminder_arr_t parse_file(char* file_contents) {
-    char* file_end = file_contents + strlen(file_contents);
-
     size_t reminder_count = 0;
     for (size_t i = 0; file_contents[i]; ++i) {
         if (file_contents[i] == '\n') ++reminder_count;
@@ -114,7 +123,7 @@ reminder_arr_t parse_file(char* file_contents) {
     int16_t year;
     uint8_t month, day, hour, min, sec;
 
-    while (file_contents != file_end) {
+    while (*file_contents != '\0') {
         ////
         // parse due date
         // YYYY-MM-DDTHH:MM:SS
@@ -204,44 +213,61 @@ reminder_arr_t parse_file(char* file_contents) {
         ////
         // parse title
         
-        // skip to next space
-        for(; *file_contents != ' '; ++file_contents);
-        ++file_contents;
+        // skip to next space or end of line/file
+        for (; *file_contents != ' '
+            && *file_contents != '\0'
+            && *file_contents != '\n'; ++file_contents);
+
+        // if not an end line/file, next character
+        if (*file_contents == ' ') ++file_contents;
 
         // get length of title
         size_t title_len = 0;
-        for (; *file_contents != ':'; ++file_contents, ++title_len);
+        for (; *file_contents != ':'
+            && *file_contents != '\0'
+            && *file_contents != '\n'; ++file_contents, ++title_len);
         file_contents -= title_len;
 
-        // get title
-        char* title = (char*)malloc((title_len + 1) * sizeof(char));
-        if (!title && errno != 0) {
-            perror("ERROR:");
-            exit(errno);
+        char* title = NULL;
+        if (title_len) {
+            // get title
+            title = (char*)malloc((title_len + 1) * sizeof(char));
+            if (!title && errno != 0) {
+                perror("ERROR:");
+                exit(errno);
+            }
+            memcpy(title, file_contents, title_len);
+            title[title_len] = '\0';
         }
-        memcpy(title, file_contents, title_len);
-        title[title_len] = '\0';
 
         ////
         // parse description
 
         // skip to after the title
-        for(; *file_contents != ':'; ++file_contents);
-        ++file_contents;
+        for (; *file_contents != ':'
+            && *file_contents != '\0'
+            && *file_contents != '\n'; ++file_contents);
+
+        if (*file_contents == ':') ++file_contents;
+        if (*file_contents == ' ') ++file_contents;
 
         // get length of description
         size_t desc_len = 0;
-        for (; *file_contents != '\n' && *file_contents != '\0'; ++file_contents, ++desc_len);
+        for (; *file_contents != '\n'
+            && *file_contents != '\0'; ++file_contents, ++desc_len);
         file_contents -= desc_len;
 
-        // get description
-        char* desc = (char*)malloc((desc_len + 1) * sizeof(char));
-        if(!desc && errno != 0) {
-            perror("ERROR:");
-            exit(errno);
+        char* desc = NULL;
+        if (desc_len) {
+            // get description
+            desc = (char*)malloc((desc_len + 1) * sizeof(char));
+            if(!desc && errno != 0) {
+                perror("ERROR:");
+                exit(errno);
+            }
+            memcpy(desc, file_contents, desc_len);
+            desc[desc_len] = '\0';
         }
-        memcpy(desc, file_contents, desc_len);
-        desc[desc_len] = '\0';
 
         struct tm temp_due = {
             .tm_year = year,
@@ -263,9 +289,9 @@ reminder_arr_t parse_file(char* file_contents) {
         reminders[reminder_i] = temp_reminder;
         ++reminder_i;
 
-        // skip to next line
-        while(*file_contents != '\n') ++file_contents;
-        ++file_contents;
+        // skip to next line / end of file
+        while(*file_contents != '\n' && *file_contents != '\0') ++file_contents;
+        if (*file_contents == '\n') ++file_contents;
     }
 
     reminder_arr_t out_arr = {
