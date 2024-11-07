@@ -60,6 +60,7 @@ tm_diff_t time_diff(struct tm time1, struct tm time2) {
     diff.hours += (time1.tm_hour - time2.tm_hour);
     if (diff.hours < 0) {
         diff.hours += 24;
+        diff.days--;
     }
 
     return diff;
