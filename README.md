@@ -82,3 +82,4 @@ and could introduce bugs.
 - CLI or TUI for creating, updating, and deleting reminders
 - Packaging for AUR and other distro repositories
 - Potential optimisations
+- Better error handling for malformed `.reminders` file
