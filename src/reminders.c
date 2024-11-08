@@ -119,94 +119,54 @@ reminder_arr_t parse_file(char* file_contents) {
     size_t reminder_i = 0;
 
     reminder_t* reminders = (reminder_t*)malloc(reminder_count * sizeof(reminder_t));
-    char year_str[5], month_str[3], day_str[3], hour_str[3], min_str[3], sec_str[3];
-    int16_t year;
-    uint8_t month, day, hour, min, sec;
+    char due_str[20];
+    struct tm due = { 0 }; 
 
     while (*file_contents != '\0') {
         ////
         // parse due date
         // YYYY-MM-DDTHH:MM:SS
         
-        // year
-        memcpy(year_str, file_contents, 4);
-        year_str[4] = '\0';
-        // tm_year is time since 1900
-        year = atoi(year_str) - 1900;
-        file_contents += 5;
+        // %Y-%m-%dT%H:%M:%S
 
-        // month
-        memcpy(month_str, file_contents, 2);
-        month_str[2] = '\0';
-        month = atoi(month_str) - 1;
-        if (month > 12) {
-            fprintf(stderr, "ERROR: Malformed date in reminder, got month of %d (should be 1-12).\n", month + 1);
-            exit(EXIT_FAILURE);
+        for (uint8_t i = 0; i < 20; ++i) {
+            if (*file_contents == '\n' || *file_contents == '\0') {
+                fprintf(stderr, "ERROR: Couldn't parse reminder %ld, date too short\n", reminder_i + 1);
+                exit(FORMAT_TIME_FAIL);
+            }
         }
-        file_contents += 3;
 
-        // day
-        memcpy(day_str, file_contents, 2);
-        day_str[2] = '\0';
-        day = atoi(day_str);
-        if (day == 0 || day > days_in_month(year, month)) {
-            fprintf(stderr, "ERROR: Malformed date in reminder, got day of %d with month %d (should be 1-%d).\n", day, month, days_in_month(year,  month));
-            exit(EXIT_FAILURE);
+        memcpy(due_str, file_contents, 19);
+        due_str[19] = '\0';
+        if (!strptime(due_str, "%Y-%m-%dT%H:%M:%S", &due)) {
+            fprintf(stderr, "ERROR: Couldn't parse reminder %ld\n", reminder_i + 1);
+            exit(FORMAT_TIME_FAIL);
         }
-        file_contents += 3;
 
-        // hour
-        memcpy(hour_str, file_contents, 2);
-        hour_str[2] = '\0';
-        hour = atoi(hour_str);
-        if (hour > 23) {
-            fprintf(stderr, "ERROR: Malformed date in reminder, got hour of %d (should be 0-23).\n", hour);
-            exit(EXIT_FAILURE);
-        }
-        file_contents += 3;
-
-        // minute
-        memcpy(min_str, file_contents, 2);
-        min_str[2] = '\0';
-        min = atoi(min_str);
-        if (min > 59) {
-            fprintf(stderr, "ERROR: Malformed date in reminder, got minute of %d (should be 0-59).\n", min);
-            exit(EXIT_FAILURE);
-        }
-        file_contents += 3;
-
-        // second
-        memcpy(sec_str, file_contents, 2);
-        sec_str[2] = '\0';
-        sec = atoi(sec_str);
-        if (sec > 59) {
-            fprintf(stderr, "ERROR: Malformed date in reminder, got second of %d (should be 0-60).\n", sec);
-            exit(EXIT_FAILURE);
-        }
 
         ////
         // parse severity
         
-        Severity temp_sev;
+        Severity sev;
 
         // skip to next space
         for(; *file_contents != ' '; ++file_contents);
         switch (*(++file_contents)) {
             case 'R':
-                temp_sev = Routine;
+                sev = Routine;
                 break;
             case 'L':
-                temp_sev = Low;
+                sev = Low;
                 break;
             case 'M':
-                temp_sev = Medium;
+                sev = Medium;
                 break;
             case 'H':
-                temp_sev = High;
+                sev = High;
                 break;
             default:
                 //TODO: error handling
-                temp_sev = Routine;
+                sev = Routine;
                 break;
         }
 
@@ -269,18 +229,9 @@ reminder_arr_t parse_file(char* file_contents) {
             desc[desc_len] = '\0';
         }
 
-        struct tm temp_due = {
-            .tm_year = year,
-            .tm_mon = month,
-            .tm_mday = day,
-            .tm_hour = hour,
-            .tm_min = min,
-            .tm_sec = sec,
-        };
-
         reminder_t temp_reminder = {
-            .due = temp_due,
-            .severity = temp_sev,
+            .due = due,
+            .severity = sev,
             .title = title,
             .description = desc,
         };

@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS ?= -Wall -Wextra -pedantic -O2
+CFLAGS ?= -Wall -Wextra -pedantic -O2 -D_XOPEN_SOURCE=600
 CFLAGS += $(CFLAGS_EX)
 
 SRCDIR = src

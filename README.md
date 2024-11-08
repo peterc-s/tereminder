@@ -5,6 +5,7 @@ Reminders in the terminal.
 To build you'll need:
 - GCC
 - GNU Make
+- A Linux machine
 
 ## Building
 To build tereminder, simply use:
@@ -32,6 +33,7 @@ Currently, you will need to manually edit your `.reminders` file
 and there is no way to set where your `reminders` file is other
 than modifying the source code and rebuilding (there are plans
 to change this). It will currently default to `$HOME/.reminders`.
+Blank lines will cause an error.
 
 The format of a reminder is as follows:
 ```
