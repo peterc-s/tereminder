@@ -116,9 +116,16 @@ reminder_arr_t parse_file(char* file_contents) {
     for (size_t i = 0; file_contents[i]; ++i) {
         if (file_contents[i] == '\n') ++reminder_count;
     }
+    trace("Got %ld reminders.\n");
     size_t reminder_i = 0;
 
+    trace("Mallocing reminder array (%d).\n", reminder_count * sizeof(reminder_t));
     reminder_t* reminders = (reminder_t*)malloc(reminder_count * sizeof(reminder_t));
+    if (reminders == NULL) {
+        error("%s.\n", strerror(errno));
+        exit(errno);
+    }
+
     char due_str[20];
     struct tm due = { 0 }; 
 
@@ -128,6 +135,7 @@ reminder_arr_t parse_file(char* file_contents) {
         // YYYY-MM-DDTHH:MM:SS
         
         // %Y-%m-%dT%H:%M:%S
+        trace("Reminder %d: parsing due date.\n", reminder_i + 1);
 
         for (uint8_t i = 0; i < 20; ++i) {
             if (*file_contents == '\n' || *file_contents == '\0') {
@@ -146,7 +154,8 @@ reminder_arr_t parse_file(char* file_contents) {
 
         ////
         // parse severity
-        
+        trace("Reminder %ld: parsing severity.\n", reminder_i + 1);
+
         Severity sev;
 
         // skip to next space
@@ -172,6 +181,7 @@ reminder_arr_t parse_file(char* file_contents) {
 
         ////
         // parse title
+        trace("Reminder %ld: parsing title.\n", reminder_i + 1);
         
         // skip to next space or end of line/file
         for (; *file_contents != ' '
@@ -202,6 +212,7 @@ reminder_arr_t parse_file(char* file_contents) {
 
         ////
         // parse description
+        trace("Reminder %ld: parsing description.\n", reminder_i + 1);
 
         // skip to after the title
         for (; *file_contents != ':'
@@ -238,6 +249,7 @@ reminder_arr_t parse_file(char* file_contents) {
         };
 
         // add to reminders
+        trace("Finished parsing reminder %ld\n", reminder_i);
         reminders[reminder_i] = temp_reminder;
         ++reminder_i;
 
