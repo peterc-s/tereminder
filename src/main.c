@@ -6,6 +6,8 @@
 #include "reminders.h"
 #include "file.h"
 
+int DEBUG = 0;
+
 int main(void) {
     char* reminders_file = getenv("HOME");
     strcat(reminders_file, "/.reminders");

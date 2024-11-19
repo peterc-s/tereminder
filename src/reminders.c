@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include "timeutil.h"
 #include "reminders.h"
 #include "ansi.h"
+#include "debug.h"
 #include "timediff.h"
 
 int print_reminder(reminder_t* rem) {
@@ -131,7 +131,7 @@ reminder_arr_t parse_file(char* file_contents) {
 
         for (uint8_t i = 0; i < 20; ++i) {
             if (*file_contents == '\n' || *file_contents == '\0') {
-                fprintf(stderr, "ERROR: Couldn't parse reminder %ld, date too short\n", reminder_i + 1);
+                error("Couldn't parse reminder %ld, date too short.\n", reminder_i + 1);
                 exit(FORMAT_TIME_FAIL);
             }
         }
@@ -139,7 +139,7 @@ reminder_arr_t parse_file(char* file_contents) {
         memcpy(due_str, file_contents, 19);
         due_str[19] = '\0';
         if (!strptime(due_str, "%Y-%m-%dT%H:%M:%S", &due)) {
-            fprintf(stderr, "ERROR: Couldn't parse reminder %ld\n", reminder_i + 1);
+            error("Couldn't parse reminder %ld, bad date.\n", reminder_i + 1);
             exit(FORMAT_TIME_FAIL);
         }
 
@@ -165,8 +165,8 @@ reminder_arr_t parse_file(char* file_contents) {
                 sev = High;
                 break;
             default:
-                //TODO: error handling
-                sev = Routine;
+                error("Couldn't parse reminder %ld, bad severity `%c`.\n", reminder_i + 1, *file_contents);
+                exit(FORMAT_TIME_FAIL);
                 break;
         }
 
@@ -193,7 +193,7 @@ reminder_arr_t parse_file(char* file_contents) {
             // get title
             title = (char*)malloc((title_len + 1) * sizeof(char));
             if (!title && errno != 0) {
-                perror("ERROR:");
+                error("%s\n", strerror(errno));
                 exit(errno);
             }
             memcpy(title, file_contents, title_len);
@@ -222,6 +222,7 @@ reminder_arr_t parse_file(char* file_contents) {
             // get description
             desc = (char*)malloc((desc_len + 1) * sizeof(char));
             if(!desc && errno != 0) {
+                error("%s\n", strerror(errno));
                 perror("ERROR:");
                 exit(errno);
             }
