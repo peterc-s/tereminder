@@ -12,7 +12,7 @@
 int DEBUG = 0;
 
 static inline void usage(char* exe_name) {
-    eprintf("\033[1mUsage:\033[0m %s [-v]\n", exe_name);
+    eprintf("\033[1mUsage:\033[0m %s [-v] [-h]\n", exe_name);
 }
 
 int main(int argc, char** argv) {
@@ -27,7 +27,8 @@ int main(int argc, char** argv) {
             case 'h':
                 usage(argv[0]);
                 eprintf(ANSI_BOLD "Options:\n" ANSI_RESET);
-                eprintf("\t-v\tVerbosity level - (-v = warn, -vv = info, -vvv = trace)\n");
+                eprintf("\t-v\tVerbosity level - (-v = warn, -vv = info, -vvv = trace).\n");
+                eprintf("\t-h\tDisplays this message.\n");
                 return EXIT_SUCCESS;
             case '?':
                 error("Unknown option -%c.\n", optopt);
