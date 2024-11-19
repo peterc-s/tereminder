@@ -6,23 +6,29 @@
 
 #include "reminders.h"
 #include "file.h"
+#include "ansi.h"
 #include "debug.h"
 
 int DEBUG = 0;
 
 static inline void usage(char* exe_name) {
-    eprintf("\033[1mUsage:\033[0m %s [-v] [-o output_file] <input_file>\n", exe_name);
+    eprintf("\033[1mUsage:\033[0m %s [-v]\n", exe_name);
 }
 
 int main(int argc, char** argv) {
     // argument parsing
     int opt;
     opterr = 0;
-    while ((opt = getopt(argc, argv, "v")) != -1) {
+    while ((opt = getopt(argc, argv, "vh")) != -1) {
         switch (opt) {
             case 'v':
                 DEBUG++;
                 break;
+            case 'h':
+                usage(argv[0]);
+                eprintf(ANSI_BOLD "Options:\n" ANSI_RESET);
+                eprintf("\t-v\tVerbosity level - (-v = warn, -vv = info, -vvv = trace)\n");
+                return EXIT_SUCCESS;
             case '?':
                 error("Unknown option -%c.\n", optopt);
                 usage(argv[0]);
