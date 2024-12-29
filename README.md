@@ -85,3 +85,4 @@ and could introduce bugs.
 - Packaging for AUR and other distro repositories
 - Potential optimisations
 - Better error handling for malformed `.reminders` file
+- Move to arena allocators?
